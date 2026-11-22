@@ -169,7 +169,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const store={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let data=[],plat='Semua',q='';
 
-function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,3200)}
+function toast(t){const el=$('#toast');(document.querySelector('dialog[open]')||document.body).appendChild(el);el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,3200)}
 const jkt=d=>d.toLocaleDateString('en-CA',{timeZone:'Asia/Jakarta'});
 function when(iso){
   const d=new Date(iso),n=new Date();
@@ -183,7 +183,7 @@ const rp=n=>n?'Rp '+Number(n).toLocaleString('id-ID'):'';
 async function api(path,opt={}){
   const r=await fetch(CFG.URL+'/rest/v1/'+path,{...opt,headers:{apikey:CFG.KEY,Authorization:'Bearer '+CFG.KEY,'Content-Type':'application/json',...(opt.headers||{})}});
   if(!r.ok)throw new Error(r.status);
-  return r.status===204?null:r.json();
+  const t=await r.text();return t?JSON.parse(t):null;
 }
 async function load(){
   try{data=DEMO?store.get(LS,[]):await api('laporan?select=*&status=eq.aktif&order=created_at.desc&limit=300')}
@@ -265,11 +265,13 @@ $('#fLapor').onsubmit=async e=>{
   if(sent.length>=3)return toast('Batas 3 laporan per hari dari perangkat ini.');
   const f=new FormData(e.target);
   const rep={platform:f.get('platform'),kecamatan:f.get('kecamatan').trim(),alamat:f.get('alamat').trim(),modus:f.get('modus'),nominal:Math.max(0,parseInt(f.get('nominal'))||0)};
+  const sb=e.target.querySelector('button[type=submit]');sb.disabled=true;
   try{
     await save(rep);
     store.set(LSR,[...sent,Date.now()]);
     e.target.reset();$('#dLapor').close();toast('Laporan terkirim. Terima kasih sudah melindungi driver lain.');await load();
   }catch(err){toast('Gagal mengirim laporan. Coba lagi.')}
+  sb.disabled=false;
 };
 
 /* dialog */
