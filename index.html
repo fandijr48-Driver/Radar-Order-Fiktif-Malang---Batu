@@ -37,7 +37,7 @@ h2{font:800 1.3rem Archivo,sans-serif;margin:0}
 .rep{display:flex;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:14px;margin-bottom:12px}
 .side{display:flex;flex-direction:column;align-items:center;gap:8px;width:76px;flex:none}
 .pl{width:100%;text-align:center;padding:10px 4px;border-radius:10px;font:800 .8rem Archivo,sans-serif;color:#fff}
-.p-Shopee{background:#e8472b}.p-Gojek{background:#0b8f2a}.p-Grab{background:#00724a}.p-Maxim{background:var(--amber);color:var(--ink)}
+.p-Shopee{background:#e8472b}.p-Gojek{background:#0b8f2a}.p-Grab{background:#00724a}.p-Maxim{background:var(--amber);color:var(--ink)}.p-Lainnya{background:#4a5d66}
 .vic{font-size:.78rem;font-weight:700;color:var(--bad)}
 .body{flex:1;min-width:0}
 .body h3{font:700 1rem/1.3 "Public Sans",sans-serif;margin:0 0 2px;overflow-wrap:anywhere}
@@ -68,6 +68,7 @@ input[type=text],input[type=number],select{width:100%;padding:12px 14px;border:1
 .chk input{width:20px;height:20px;margin:2px 0 0;flex:none;accent-color:var(--ink)}
 .btn{display:block;width:100%;margin-top:18px;border:0;border-radius:var(--r-btn);padding:14px;font:800 1rem Archivo,sans-serif;background:var(--bad);color:#fff;cursor:pointer}
 .btn.alt{background:#fff;color:var(--ink);border:1px solid var(--line);margin-top:10px}
+.btn.alt.ok{border-color:var(--ok);color:var(--ok);background:#f1fbf6}
 .light{display:flex;gap:14px;align-items:center;margin-top:16px;padding:14px;border-radius:var(--r-card);background:var(--ink);color:#fff}
 .dots{display:flex;flex-direction:column;gap:6px}
 .dots i{width:18px;height:18px;border-radius:50%;background:#34454c}
@@ -90,6 +91,7 @@ input[type=text],input[type=number],select{width:100%;padding:12px 14px;border:1
 .pt .row{display:flex;gap:8px}
 .pt a{flex:1;text-align:center;padding:10px;border-radius:var(--r-btn);background:var(--ink);color:#fff;text-decoration:none;font-weight:600;font-size:.9rem}
 .pt a.alt{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.filter-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}
 </style>
 </head>
 <body>
@@ -133,18 +135,23 @@ input[type=text],input[type=number],select{width:100%;padding:12px 14px;border:1
   <p>Satu laporan per kejadian. Batas 10 laporan per hari.</p>
   <label>Platform</label>
   <div class="radios" id="rPlat"></div>
+
   <label for="fKec">Kecamatan</label>
-  <input type="text" id="fKec" name="kecamatan" list="kecs" required placeholder="Contoh: Lowokwaru" autocomplete="off">
-  <datalist id="kecs"></datalist>
+  <select id="fKec" name="kecamatan" required></select>
+
   <label for="fAlamat">Alamat atau patokan</label>
   <input type="text" id="fAlamat" name="alamat" required maxlength="160" placeholder="Contoh: Jl. Raya Tlogomas, depan ruko kosong">
-  <label for="fModus">Modus</label>
+
+  <label for="fModus">Kategori modus</label>
   <select id="fModus" name="modus" required></select>
+
   <label for="fNominal">Nominal order (Rp, opsional)</label>
   <input type="number" id="fNominal" name="nominal" min="0" max="100000000" inputmode="numeric" placeholder="150000">
+
   <button type="button" class="btn alt" id="gpsLapor">Pakai lokasiku sekarang</button>
   <p class="hint" id="gpsInfo">Opsional. Pakai kalau kamu sedang berada di titik antar, supaya laporan muncul di peta.</p>
-  <button class="btn" type="submit">Kirim laporan</button>
+
+  <button type="submit" class="btn">Kirim laporan</button>
   <button class="btn alt" type="button" data-close>Batal</button>
 </form></dialog>
 
@@ -152,9 +159,13 @@ input[type=text],input[type=number],select{width:100%;padding:12px 14px;border:1
   <h2>Panti terdekat</h2>
   <p>Kena order fiktif? Daripada dibuang, sedekahkan ke panti asuhan di Malang Raya.</p>
   <input class="search" type="search" id="pQ" placeholder="Cari nama, kecamatan, atau alamat panti" aria-label="Cari panti">
-  <div class="chips" style="padding:10px 0 0"><button class="chip" type="button" id="pNear">Urutkan terdekat</button><button class="chip" type="button" id="pGmaps">Cari di Google Maps</button></div>
+  <div class="filter-row">
+    <select id="pKecFilter" aria-label="Filter daerah panti"></select>
+    <button class="chip" type="button" id="pNear">Terdekat</button>
+  </div>
+  <div class="chips" style="padding:10px 0 0"><button class="chip" type="button" id="pGmaps">Cari di Google Maps</button></div>
   <div id="pList"></div>
-  <button class="btn" type="button" id="pAdd" style="background:var(--ink)">Tambah panti</button>
+  <button class="btn" type="button" id="pAdd" style="background:var(--ink)">+ Tambah panti</button>
   <button class="btn alt" type="button" data-close>Tutup</button>
 </div></dialog>
 
@@ -164,7 +175,7 @@ input[type=text],input[type=number],select{width:100%;padding:12px 14px;border:1
   <label for="tNama">Nama panti</label>
   <input type="text" id="tNama" name="nama" required maxlength="80">
   <label for="tKec">Kecamatan</label>
-  <input type="text" id="tKec" name="kecamatan" list="kecs" required maxlength="40">
+  <select id="tKec" name="kecamatan" required></select>
   <label for="tAlamat">Alamat</label>
   <input type="text" id="tAlamat" name="alamat" required maxlength="160">
   <label for="tHp">Nomor telepon panti (opsional)</label>
@@ -179,38 +190,42 @@ input[type=text],input[type=number],select{width:100%;padding:12px 14px;border:1
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
 <script>
-/* ===== SETUP SUPABASE (opsional, supaya laporan dibagi ke semua driver) =====
-Jalankan SQL ini di Supabase > SQL Editor, lalu isi CFG di bawah dengan Project URL dan anon key.
-
-create table laporan(
- id uuid primary key default gen_random_uuid(),
- created_at timestamptz default now(),
- platform text not null,
- kecamatan text not null check (char_length(kecamatan)<=40),
- alamat text not null check (char_length(alamat)<=160),
- modus text not null,
- nominal int default 0 check (nominal between 0 and 100000000),
- korban int not null default 1,
- status text not null default 'aktif');
-alter table laporan enable row level security;
-create policy baca on laporan for select using (status='aktif');
-create policy lapor on laporan for insert with check (korban=1 and status='aktif');
-create function konfirmasi(rid uuid) returns void language sql security definer as $$ update laporan set korban=korban+1 where id=rid $$;
-grant execute on function konfirmasi(uuid) to anon;
-
-Moderasi: ubah kolom status menjadi 'hidden' lewat dashboard untuk menyembunyikan laporan palsu.
-=========================================================================== */
 const CFG={URL:'https://rvhzdhtczklazoijrgno.supabase.co',KEY:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2aHpkaHRjemtsYXpvaWpyZ25vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUzMzEzMjUsImV4cCI6MjExMDkwNzMyNX0.ag7gQEeQ8GyzH-HII1Tqc_UKbYfntWXTb-qMFwNSlq8'};
 const DEMO=!CFG.URL;
-const PLATS=['Shopee','Gojek','Grab','Maxim'];
-const MODUS=['Alamat palsu / tanah kosong','Minta talangan pulsa / transfer','Nomor tidak aktif','COD ditolak saat sampai','Lainnya'];
-const KECS=['Blimbing','Kedungkandang','Klojen','Lowokwaru','Sukun','Batu','Bumiaji','Junrejo','Ampelgading','Bantur','Bululawang','Dampit','Dau','Donomulyo','Gedangan','Gondanglegi','Jabung','Kalipare','Karangploso','Kasembon','Kepanjen','Kromengan','Lawang','Ngajum','Ngantang','Pagak','Pagelaran','Pakis','Pakisaji','Poncokusumo','Pujon','Singosari','Sumbermanjing Wetan','Sumberpucung','Tajinan','Tirtoyudo','Tumpang','Turen','Wagir','Wajak','Wonosari'];
-const CHK=[['Akun pelanggan baru atau belum punya ulasan',1],['Alamat tanpa patokan jelas atau di lokasi sepi',2],['Minta talangan pulsa, transfer, atau beli barang dulu',3],['Minta pindah chat ke luar aplikasi',2],['Nomor pelanggan tidak bisa dihubungi',2],['Nominal besar tapi menolak bayar lewat aplikasi',2]];
+const MAX_HARIAN=10;
+const PLATS=['Shopee','Gojek','Grab','Maxim','Lainnya'];
+const MODUS=[
+  'Alamat palsu / tanah kosong',
+  'Minta talangan pulsa / e-wallet / transfer',
+  'Nomor tidak aktif / penerima fiktif',
+  'COD ditolak saat sampai',
+  'Gang sepi / titik antar rawan',
+  'Lainnya'
+];
+const WILAYAH={
+  'Kota Malang':['Blimbing','Kedungkandang','Klojen','Lowokwaru','Sukun'],
+  'Kota Batu':['Batu','Bumiaji','Junrejo'],
+  'Kabupaten Malang':['Ampelgading','Bantur','Bululawang','Dampit','Dau','Donomulyo','Gedangan','Gondanglegi','Jabung','Kalipare','Karangploso','Kasembon','Kepanjen','Kromengan','Lawang','Ngajum','Ngantang','Pagak','Pagelaran','Pakis','Pakisaji','Poncokusumo','Pujon','Singosari','Sumbermanjing Wetan','Sumberpucung','Tajinan','Tirtoyudo','Tumpang','Turen','Wagir','Wajak','Wonosari']
+};
+const CHK=[
+  ['Akun pelanggan baru atau belum punya ulasan',1],
+  ['Alamat tanpa patokan jelas atau di lokasi sepi',2],
+  ['Minta talangan pulsa, transfer, atau beli barang dulu',3],
+  ['Minta pindah chat ke luar aplikasi',2],
+  ['Nomor pelanggan tidak bisa dihubungi',2],
+  ['Nominal besar tapi menolak bayar lewat aplikasi',2]
+];
 const LS='rofm_laporan',LSV='rofm_vote',LSR='rofm_kirim';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let data=[],plat='Semua',q='';
+
+function buildKecOptions(placeholder){
+  return `<option value="">${placeholder}</option>` + Object.entries(WILAYAH).map(([grp,list])=>
+    `<optgroup label="${grp}">${list.map(k=>`<option value="${k}">${k}</option>`).join('')}</optgroup>`
+  ).join('');
+}
 
 function toast(t){const el=$('#toast');(document.querySelector('dialog[open]')||document.body).appendChild(el);el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,3200)}
 const jkt=d=>d.toLocaleDateString('en-CA',{timeZone:'Asia/Jakarta'});
@@ -270,7 +285,7 @@ function render(){
 
 /* chips */
 $('#chips').innerHTML=['Semua',...PLATS].map(p=>`<button class="chip" data-p="${p}" aria-pressed="${p==='Semua'}">${p}</button>`).join('');
-$('#chips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;plat=b.dataset.p;document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b));render()};
+$('#chips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;plat=b.dataset.p;document.querySelectorAll('#chips .chip').forEach(c=>c.setAttribute('aria-pressed',c===b));render()};
 $('#q').oninput=e=>{q=e.target.value;render()};
 $('#list').onclick=async e=>{
   const b=e.target.closest('.vote');if(!b||b.disabled)return;
@@ -279,7 +294,7 @@ $('#list').onclick=async e=>{
 };
 
 /* cek risiko */
-$('#chks').innerHTML=CHK.map((c,i)=>`<label class="chk"><input type="checkbox" data-w="${c[1]}"><span>${c[0]}</span></label>`).join('');
+$('#chks').innerHTML=CHK.map(c=>`<label class="chk"><input type="checkbox" data-w="${c[1]}"><span>${c[0]}</span></label>`).join('');
 const STOP=['jalan','jln','gang','gg','dekat','depan','belakang','nomor','kota','rumah','raya'];
 const toks=s=>s.toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(w=>w.length>2&&!STOP.includes(w));
 function matchAddr(a){
@@ -300,21 +315,35 @@ $('#openCek').onclick=()=>{$('#dCek').showModal();cek()};
 
 /* lapor */
 $('#rPlat').innerHTML=PLATS.map((p,i)=>`<label><input type="radio" name="platform" value="${p}" ${i?'':'required'}><span>${p}</span></label>`).join('');
-$('#fModus').innerHTML=MODUS.map(m=>`<option>${m}</option>`).join('');
-$('#kecs').innerHTML=KECS.map(k=>`<option value="${k}">`).join('');
+$('#fKec').innerHTML=buildKecOptions('-- Pilih kecamatan --');
+$('#fModus').innerHTML='<option value="">-- Pilih kategori modus --</option>'+MODUS.map(m=>`<option value="${m}">${m}</option>`).join('');
 $('#openLapor').onclick=()=>$('#dLapor').showModal();
 $('#fLapor').onsubmit=async e=>{
   e.preventDefault();
   const sent=store.get(LSR,[]).filter(t=>Date.now()-t<864e5);
-  if(sent.length>=3)return toast('Batas 3 laporan per hari dari perangkat ini.');
+  if(sent.length>=MAX_HARIAN)return toast(`Batas ${MAX_HARIAN} laporan per hari dari perangkat ini.`);
   const f=new FormData(e.target);
-  const rep={platform:f.get('platform'),kecamatan:f.get('kecamatan').trim(),alamat:f.get('alamat').trim(),modus:f.get('modus'),nominal:Math.max(0,parseInt(f.get('nominal'))||0)};
+  const rep={
+    platform:f.get('platform'),
+    kecamatan:f.get('kecamatan').trim(),
+    alamat:f.get('alamat').trim(),
+    modus:f.get('modus'),
+    nominal:Math.max(0,parseInt(f.get('nominal'))||0)
+  };
   if(pos.l)Object.assign(rep,pos.l);
   const sb=e.target.querySelector('button[type=submit]');sb.disabled=true;
   try{
     await save(rep);
     store.set(LSR,[...sent,Date.now()]);
-    e.target.reset();pos.l=null;$('#gpsInfo').textContent='Opsional. Pakai kalau kamu sedang berada di titik antar, supaya laporan muncul di peta.';$('#dLapor').close();toast('Laporan terkirim. Terima kasih sudah melindungi driver lain.');await load();
+    e.target.reset();
+    pos.l=null;
+    const btnGps=$('#gpsLapor');
+    btnGps.classList.remove('ok');
+    btnGps.textContent='Pakai lokasiku sekarang';
+    $('#gpsInfo').textContent='Opsional. Pakai kalau kamu sedang berada di titik antar, supaya laporan muncul di peta.';
+    $('#dLapor').close();
+    toast('Laporan terkirim. Terima kasih sudah melindungi driver lain.');
+    await load();
   }catch(err){toast('Gagal mengirim laporan. Coba lagi.')}
   sb.disabled=false;
 };
@@ -323,18 +352,29 @@ $('#fLapor').onsubmit=async e=>{
 document.querySelectorAll('dialog').forEach(d=>{
   d.addEventListener('click',e=>{if(e.target===d||e.target.closest('[data-close]'))d.close()});
 });
+
 /* lokasi */
 const pos={l:null,p:null,t:null};
-function gps(done,info){
+function gps(done,info,btn){
   if(!navigator.geolocation){info.textContent='Peramban ini tidak mendukung lokasi.';return}
-  info.textContent='Mencari lokasi...';
+  info.textContent='Mencari lokasi GPS...';
+  if(btn)btn.disabled=true;
   navigator.geolocation.getCurrentPosition(p=>{
-    const lat=+p.coords.latitude.toFixed(4),lng=+p.coords.longitude.toFixed(4);
-    if(!(lat<-7&&lat>-9&&lng>111&&lng<114)){info.textContent='Lokasimu di luar Malang Raya, jadi tidak dipakai.';return}
-    done({lat,lng});info.textContent='Lokasi tersimpan (sekitar '+Math.round(p.coords.accuracy)+' m).';
-  },()=>{info.textContent='Lokasi tidak bisa diambil. Izinkan akses lokasi di peramban.'},{enableHighAccuracy:true,timeout:15000});
+    if(btn)btn.disabled=false;
+    const lat=+p.coords.latitude.toFixed(5),lng=+p.coords.longitude.toFixed(5);
+    if(!(lat<-7&&lat>-9&&lng>111&&lng<114)){
+      info.textContent='Lokasimu terdeteksi di luar Malang Raya, jadi koordinat tidak dipakai.';
+      return;
+    }
+    done({lat,lng});
+    if(btn){btn.classList.add('ok');btn.textContent='Lokasi terpasang ✓'}
+    info.textContent=`Koordinat tersimpan (${lat}, ${lng} • akurasi ±${Math.round(p.coords.accuracy)} m).`;
+  },()=>{
+    if(btn)btn.disabled=false;
+    info.textContent='Lokasi tidak bisa diambil. Izinkan akses lokasi di pengaturan browser/HP.';
+  },{enableHighAccuracy:true,timeout:15000,maximumAge:0});
 }
-$('#gpsLapor').onclick=()=>gps(c=>pos.l=c,$('#gpsInfo'));
+$('#gpsLapor').onclick=()=>gps(c=>pos.l=c,$('#gpsInfo'),$('#gpsLapor'));
 
 /* peta */
 let map,lay;
@@ -346,13 +386,18 @@ function drawMap(list){
     lay=L.layerGroup().addTo(map);
   }
   lay.clearLayers();
-  list.filter(r=>r.lat!=null&&r.lng!=null).forEach(r=>L.circleMarker([r.lat,r.lng],{radius:8+Math.min(r.korban,6),color:'#fff',weight:2,fillColor:r.korban>1?'#c8372d':'#f2b705',fillOpacity:.9})
+  const pts=list.filter(r=>r.lat!=null&&r.lng!=null);
+  pts.forEach(r=>L.circleMarker([r.lat,r.lng],{radius:8+Math.min(r.korban,6),color:'#fff',weight:2,fillColor:r.korban>1?'#c8372d':'#f2b705',fillOpacity:.9})
     .bindPopup(`<b>${esc(r.alamat)}</b><br>${esc(r.kecamatan)}, ${esc(r.modus)}<br>${r.korban} korban`).addTo(lay));
+  if(pts.length===1)map.setView([pts[0].lat,pts[0].lng],14);
 }
 
 /* panti */
 let panti=[];
 const hav=(a,b,c,d)=>{const k=Math.PI/180,x=Math.sin((c-a)*k/2)**2+Math.cos(a*k)*Math.cos(c*k)*Math.sin((d-b)*k/2)**2;return 12742*Math.asin(Math.sqrt(x))};
+$('#pKecFilter').innerHTML=buildKecOptions('Semua daerah');
+$('#tKec').innerHTML=buildKecOptions('-- Pilih kecamatan --');
+
 async function loadPanti(){
   try{panti=DEMO?[]:await api('panti?select=*&status=eq.aktif&order=nama.asc&limit=300')}
   catch(e){panti=[];toast('Gagal memuat daftar panti.')}
@@ -360,16 +405,18 @@ async function loadPanti(){
 }
 function renderPanti(){
   const ql=$('#pQ').value.trim().toLowerCase();
-  let l=panti.filter(p=>!ql||[p.nama,p.kecamatan,p.alamat].join(' ').toLowerCase().includes(ql));
+  const kf=$('#pKecFilter').value;
+  let l=panti.filter(p=>(!kf||p.kecamatan===kf)&&(!ql||[p.nama,p.kecamatan,p.alamat].join(' ').toLowerCase().includes(ql)));
   if(pos.p)l=l.map(p=>({...p,km:p.lat!=null?hav(pos.p.lat,pos.p.lng,p.lat,p.lng):null})).sort((a,b)=>(a.km??1e9)-(b.km??1e9));
-  $('#pList').innerHTML=l.length?l.map(p=>`<div class="pt"><h3>${esc(p.nama)}</h3><p>${esc(p.alamat)}, ${esc(p.kecamatan)}${p.km!=null?' ('+p.km.toFixed(1)+' km)':''}</p><div class="row"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nama+' '+p.alamat+' '+p.kecamatan)}" target="_blank" rel="noopener">Navigasi</a>${p.telepon?`<a class="alt" href="tel:${esc(p.telepon.replace(/[^0-9+]/g,''))}">Hubungi</a>`:''}</div></div>`).join(''):'<div class="empty">Belum ada panti terdaftar. Tambahkan panti yang kamu tahu, atau cari lewat Google Maps.</div>';
+  $('#pList').innerHTML=l.length?l.map(p=>`<div class="pt"><h3>${esc(p.nama)}</h3><p>${esc(p.alamat)}, ${esc(p.kecamatan)}${p.km!=null?' ('+p.km.toFixed(1)+' km)':''}</p><div class="row"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nama+' '+p.alamat+' '+p.kecamatan)}" target="_blank" rel="noopener">Navigasi</a>${p.telepon?`<a class="alt" href="tel:${esc(p.telepon.replace(/[^0-9+]/g,''))}">Hubungi</a>`:''}</div></div>`).join(''):'<div class="empty">Belum ada panti terdaftar di filter ini. Tambahkan panti yang kamu tahu, atau cari lewat Google Maps.</div>';
 }
 $('#openPanti').onclick=()=>{$('#dPanti').showModal();loadPanti()};
 $('#pQ').oninput=renderPanti;
+$('#pKecFilter').onchange=renderPanti;
 $('#pNear').onclick=()=>gps(c=>{pos.p=c;renderPanti()},{set textContent(t){toast(t)}});
 $('#pGmaps').onclick=()=>window.open('https://www.google.com/maps/search/panti+asuhan+Malang','_blank','noopener');
 $('#pAdd').onclick=()=>$('#dTambah').showModal();
-$('#gpsPanti').onclick=()=>gps(c=>pos.t=c,$('#gpsPantiInfo'));
+$('#gpsPanti').onclick=()=>gps(c=>pos.t=c,$('#gpsPantiInfo'),$('#gpsPanti'));
 $('#fPanti').onsubmit=async e=>{
   e.preventDefault();
   if(DEMO)return toast('Fitur ini butuh sambungan Supabase.');
@@ -378,7 +425,12 @@ $('#fPanti').onsubmit=async e=>{
   sb.disabled=true;
   try{
     await api('panti',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(row)});
-    e.target.reset();pos.t=null;$('#gpsPantiInfo').textContent='';$('#dTambah').close();
+    e.target.reset();pos.t=null;
+    const btnP=$('#gpsPanti');
+    btnP.classList.remove('ok');
+    btnP.textContent='Pakai lokasiku (saya sedang di panti)';
+    $('#gpsPantiInfo').textContent='';
+    $('#dTambah').close();
     toast('Terkirim. Panti tampil setelah dicek admin.');
   }catch(err){toast('Gagal mengirim. Coba lagi.')}
   sb.disabled=false;
