@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Radar Order Fiktif Malang Raya</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -80,6 +81,15 @@ input[type=text],input[type=number],select{width:100%;padding:12px 14px;border:1
 #toast[hidden]{display:none}
 :focus-visible{outline:3px solid var(--amber);outline-offset:2px}
 @media (prefers-reduced-motion:no-preference){.rep{transition:border-color .15s}.rep:hover{border-color:var(--ink)}}
+#map{height:260px;border-radius:var(--r-card);border:1px solid var(--line);z-index:0}
+.mapnote,.hint{font-size:.8rem;color:var(--mute);margin:6px 0 14px}
+.panti-btn{display:block;width:100%;margin:0 0 14px;padding:12px 16px;border:1px dashed var(--ink);border-radius:var(--r-btn);background:transparent;font:700 .95rem "Public Sans",sans-serif;color:var(--ink);cursor:pointer;text-align:left}
+.pt{border:1px solid var(--line);border-radius:var(--r-card);padding:14px;margin-top:10px}
+.pt h3{font:700 1rem/1.3 "Public Sans",sans-serif;margin:0 0 2px}
+.pt p{margin:0 0 10px;font-size:.88rem;color:var(--mute)}
+.pt .row{display:flex;gap:8px}
+.pt a{flex:1;text-align:center;padding:10px;border-radius:var(--r-btn);background:var(--ink);color:#fff;text-decoration:none;font-weight:600;font-size:.9rem}
+.pt a.alt{background:#fff;color:var(--ink);border:1px solid var(--line)}
 </style>
 </head>
 <body>
@@ -97,7 +107,10 @@ input[type=text],input[type=number],select{width:100%;padding:12px 14px;border:1
   <button class="act a2" id="openLapor"><b>Lapor order fiktif</b><span>Biar driver lain tidak zonk</span></button>
 </div>
 
+<button class="panti-btn" id="openPanti">Kena order fiktif? Sedekahkan ke panti terdekat</button>
 <div class="chips" id="chips" role="group" aria-label="Filter platform"></div>
+<div id="map" role="region" aria-label="Peta laporan"></div>
+<p class="mapnote">Titik muncul dari laporan yang memakai lokasi pelapor. Merah berarti sudah terkonfirmasi.</p>
 
 <div class="head"><h2>Laporan terbaru</h2><span id="count"></span></div>
 <div id="list"></div>
@@ -129,11 +142,41 @@ input[type=text],input[type=number],select{width:100%;padding:12px 14px;border:1
   <select id="fModus" name="modus" required></select>
   <label for="fNominal">Nominal order (Rp, opsional)</label>
   <input type="number" id="fNominal" name="nominal" min="0" max="100000000" inputmode="numeric" placeholder="150000">
+  <button type="button" class="btn alt" id="gpsLapor">Pakai lokasiku sekarang</button>
+  <p class="hint" id="gpsInfo">Opsional. Pakai kalau kamu sedang berada di titik antar, supaya laporan muncul di peta.</p>
   <button class="btn" type="submit">Kirim laporan</button>
   <button class="btn alt" type="button" data-close>Batal</button>
 </form></dialog>
 
+<dialog id="dPanti"><div class="sheet">
+  <h2>Panti terdekat</h2>
+  <p>Kena order fiktif? Daripada dibuang, sedekahkan ke panti asuhan di Malang Raya.</p>
+  <input class="search" type="search" id="pQ" placeholder="Cari nama, kecamatan, atau alamat panti" aria-label="Cari panti">
+  <div class="chips" style="padding:10px 0 0"><button class="chip" type="button" id="pNear">Urutkan terdekat</button><button class="chip" type="button" id="pGmaps">Cari di Google Maps</button></div>
+  <div id="pList"></div>
+  <button class="btn" type="button" id="pAdd" style="background:var(--ink)">Tambah panti</button>
+  <button class="btn alt" type="button" data-close>Tutup</button>
+</div></dialog>
+
+<dialog id="dTambah"><form class="sheet" id="fPanti">
+  <h2>Tambah panti</h2>
+  <p>Data tampil setelah dicek admin supaya tidak disalahgunakan.</p>
+  <label for="tNama">Nama panti</label>
+  <input type="text" id="tNama" name="nama" required maxlength="80">
+  <label for="tKec">Kecamatan</label>
+  <input type="text" id="tKec" name="kecamatan" list="kecs" required maxlength="40">
+  <label for="tAlamat">Alamat</label>
+  <input type="text" id="tAlamat" name="alamat" required maxlength="160">
+  <label for="tHp">Nomor telepon panti (opsional)</label>
+  <input type="text" id="tHp" name="telepon" inputmode="tel" maxlength="20">
+  <button type="button" class="btn alt" id="gpsPanti">Pakai lokasiku (saya sedang di panti)</button>
+  <p class="hint" id="gpsPantiInfo"></p>
+  <button class="btn" type="submit" style="background:var(--ink)">Kirim untuk dicek</button>
+  <button class="btn alt" type="button" data-close>Batal</button>
+</form></dialog>
+
 <div id="toast" role="status" aria-live="polite" hidden></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
 <script>
 /* ===== SETUP SUPABASE (opsional, supaya laporan dibagi ke semua driver) =====
@@ -210,6 +253,7 @@ function render(){
   const ql=q.trim().toLowerCase();
   const list=data.filter(r=>(plat==='Semua'||r.platform===plat)&&(!ql||[r.alamat,r.kecamatan,r.modus].join(' ').toLowerCase().includes(ql)));
   $('#count').textContent=list.length+' laporan';
+  drawMap(list);
   const voted=store.get(LSV,[]);
   $('#list').innerHTML=list.length?list.map(r=>`
   <article class="rep">
@@ -265,11 +309,12 @@ $('#fLapor').onsubmit=async e=>{
   if(sent.length>=3)return toast('Batas 3 laporan per hari dari perangkat ini.');
   const f=new FormData(e.target);
   const rep={platform:f.get('platform'),kecamatan:f.get('kecamatan').trim(),alamat:f.get('alamat').trim(),modus:f.get('modus'),nominal:Math.max(0,parseInt(f.get('nominal'))||0)};
+  if(pos.l)Object.assign(rep,pos.l);
   const sb=e.target.querySelector('button[type=submit]');sb.disabled=true;
   try{
     await save(rep);
     store.set(LSR,[...sent,Date.now()]);
-    e.target.reset();$('#dLapor').close();toast('Laporan terkirim. Terima kasih sudah melindungi driver lain.');await load();
+    e.target.reset();pos.l=null;$('#gpsInfo').textContent='Opsional. Pakai kalau kamu sedang berada di titik antar, supaya laporan muncul di peta.';$('#dLapor').close();toast('Laporan terkirim. Terima kasih sudah melindungi driver lain.');await load();
   }catch(err){toast('Gagal mengirim laporan. Coba lagi.')}
   sb.disabled=false;
 };
@@ -278,6 +323,67 @@ $('#fLapor').onsubmit=async e=>{
 document.querySelectorAll('dialog').forEach(d=>{
   d.addEventListener('click',e=>{if(e.target===d||e.target.closest('[data-close]'))d.close()});
 });
+/* lokasi */
+const pos={l:null,p:null,t:null};
+function gps(done,info){
+  if(!navigator.geolocation){info.textContent='Peramban ini tidak mendukung lokasi.';return}
+  info.textContent='Mencari lokasi...';
+  navigator.geolocation.getCurrentPosition(p=>{
+    const lat=+p.coords.latitude.toFixed(4),lng=+p.coords.longitude.toFixed(4);
+    if(!(lat<-7&&lat>-9&&lng>111&&lng<114)){info.textContent='Lokasimu di luar Malang Raya, jadi tidak dipakai.';return}
+    done({lat,lng});info.textContent='Lokasi tersimpan (sekitar '+Math.round(p.coords.accuracy)+' m).';
+  },()=>{info.textContent='Lokasi tidak bisa diambil. Izinkan akses lokasi di peramban.'},{enableHighAccuracy:true,timeout:15000});
+}
+$('#gpsLapor').onclick=()=>gps(c=>pos.l=c,$('#gpsInfo'));
+
+/* peta */
+let map,lay;
+function drawMap(list){
+  if(!window.L)return;
+  if(!map){
+    map=L.map('map',{scrollWheelZoom:false}).setView([-7.98,112.63],11);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'&copy; OpenStreetMap'}).addTo(map);
+    lay=L.layerGroup().addTo(map);
+  }
+  lay.clearLayers();
+  list.filter(r=>r.lat!=null&&r.lng!=null).forEach(r=>L.circleMarker([r.lat,r.lng],{radius:8+Math.min(r.korban,6),color:'#fff',weight:2,fillColor:r.korban>1?'#c8372d':'#f2b705',fillOpacity:.9})
+    .bindPopup(`<b>${esc(r.alamat)}</b><br>${esc(r.kecamatan)}, ${esc(r.modus)}<br>${r.korban} korban`).addTo(lay));
+}
+
+/* panti */
+let panti=[];
+const hav=(a,b,c,d)=>{const k=Math.PI/180,x=Math.sin((c-a)*k/2)**2+Math.cos(a*k)*Math.cos(c*k)*Math.sin((d-b)*k/2)**2;return 12742*Math.asin(Math.sqrt(x))};
+async function loadPanti(){
+  try{panti=DEMO?[]:await api('panti?select=*&status=eq.aktif&order=nama.asc&limit=300')}
+  catch(e){panti=[];toast('Gagal memuat daftar panti.')}
+  renderPanti();
+}
+function renderPanti(){
+  const ql=$('#pQ').value.trim().toLowerCase();
+  let l=panti.filter(p=>!ql||[p.nama,p.kecamatan,p.alamat].join(' ').toLowerCase().includes(ql));
+  if(pos.p)l=l.map(p=>({...p,km:p.lat!=null?hav(pos.p.lat,pos.p.lng,p.lat,p.lng):null})).sort((a,b)=>(a.km??1e9)-(b.km??1e9));
+  $('#pList').innerHTML=l.length?l.map(p=>`<div class="pt"><h3>${esc(p.nama)}</h3><p>${esc(p.alamat)}, ${esc(p.kecamatan)}${p.km!=null?' ('+p.km.toFixed(1)+' km)':''}</p><div class="row"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nama+' '+p.alamat+' '+p.kecamatan)}" target="_blank" rel="noopener">Navigasi</a>${p.telepon?`<a class="alt" href="tel:${esc(p.telepon.replace(/[^0-9+]/g,''))}">Hubungi</a>`:''}</div></div>`).join(''):'<div class="empty">Belum ada panti terdaftar. Tambahkan panti yang kamu tahu, atau cari lewat Google Maps.</div>';
+}
+$('#openPanti').onclick=()=>{$('#dPanti').showModal();loadPanti()};
+$('#pQ').oninput=renderPanti;
+$('#pNear').onclick=()=>gps(c=>{pos.p=c;renderPanti()},{set textContent(t){toast(t)}});
+$('#pGmaps').onclick=()=>window.open('https://www.google.com/maps/search/panti+asuhan+Malang','_blank','noopener');
+$('#pAdd').onclick=()=>$('#dTambah').showModal();
+$('#gpsPanti').onclick=()=>gps(c=>pos.t=c,$('#gpsPantiInfo'));
+$('#fPanti').onsubmit=async e=>{
+  e.preventDefault();
+  if(DEMO)return toast('Fitur ini butuh sambungan Supabase.');
+  const f=new FormData(e.target),sb=e.target.querySelector('button[type=submit]');
+  const row={nama:f.get('nama').trim(),kecamatan:f.get('kecamatan').trim(),alamat:f.get('alamat').trim(),telepon:f.get('telepon').trim()||null,...(pos.t||{})};
+  sb.disabled=true;
+  try{
+    await api('panti',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(row)});
+    e.target.reset();pos.t=null;$('#gpsPantiInfo').textContent='';$('#dTambah').close();
+    toast('Terkirim. Panti tampil setelah dicek admin.');
+  }catch(err){toast('Gagal mengirim. Coba lagi.')}
+  sb.disabled=false;
+};
+
 $('#demo').hidden=!DEMO;
 load();
 </script>
