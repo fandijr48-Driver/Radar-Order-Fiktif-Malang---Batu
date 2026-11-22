@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radar Order Fiktif Malang Raya</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14252b;--mute:#5a6b72;--bg:#e8ecee;--card:#fff;--line:#d3dbde;--amber:#f2b705;--ok:#1f8a5b;--warn:#d98e00;--bad:#c8372d;--r-card:14px;--r-btn:12px}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 "Public Sans",system-ui,sans-serif}
+.stripe{height:8px;background:repeating-linear-gradient(-45deg,var(--ink) 0 10px,var(--amber) 10px 20px)}
+main{max-width:640px;margin:0 auto;padding:20px 16px 48px}
+h1{font:800 clamp(2rem,9vw,2.8rem)/1.02 Archivo,system-ui,sans-serif;margin:8px 0 10px;letter-spacing:-.02em}
+.sub{margin:0 0 4px;color:var(--mute)}
+#stat{margin:0 0 16px}
+.demo{background:#fff6d6;border:1px solid #ecd37a;border-radius:10px;padding:8px 12px;font-size:.85rem;margin:0 0 16px}
+.search{display:block;width:100%;padding:14px 16px;border:1px solid var(--line);border-radius:var(--r-btn);background:var(--card);font:inherit;color:inherit}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.act{border:0;border-radius:var(--r-card);padding:16px;text-align:left;font:inherit;cursor:pointer;min-height:112px;display:flex;flex-direction:column;gap:6px}
+.act b{font:800 1.15rem/1.15 Archivo,sans-serif}
+.act span{font-size:.88rem;opacity:.85}
+.act.a1{background:var(--ink);color:#fff}
+.act.a1 b{color:var(--amber)}
+.act.a2{background:var(--card);color:var(--ink);border:2px solid var(--bad)}
+.act.a2 b{color:var(--bad)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 16px;font:600 .9rem "Public Sans",sans-serif;color:var(--ink);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+.head{display:flex;justify-content:space-between;align-items:baseline;margin:8px 0 12px}
+h2{font:800 1.3rem Archivo,sans-serif;margin:0}
+#count{color:var(--mute);font-size:.9rem}
+.rep{display:flex;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:14px;margin-bottom:12px}
+.side{display:flex;flex-direction:column;align-items:center;gap:8px;width:76px;flex:none}
+.pl{width:100%;text-align:center;padding:10px 4px;border-radius:10px;font:800 .8rem Archivo,sans-serif;color:#fff}
+.p-Shopee{background:#e8472b}.p-Gojek{background:#0b8f2a}.p-Grab{background:#00724a}.p-Maxim{background:var(--amber);color:var(--ink)}
+.vic{font-size:.78rem;font-weight:700;color:var(--bad)}
+.body{flex:1;min-width:0}
+.body h3{font:700 1rem/1.3 "Public Sans",sans-serif;margin:0 0 2px;overflow-wrap:anywhere}
+.body p{margin:0 0 8px;color:var(--mute);font-size:.9rem}
+.meta{display:flex;justify-content:space-between;gap:8px;font-size:.88rem;color:var(--mute)}
+.meta strong{color:var(--ink);font:800 1.05rem Archivo,sans-serif}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px}
+.st{font-size:.78rem;font-weight:700;color:var(--mute)}
+.st.ok{color:var(--ok)}
+.vote{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font:600 .8rem "Public Sans",sans-serif;color:var(--ink);cursor:pointer}
+.vote:disabled{opacity:.5;cursor:default}
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:var(--r-card);padding:24px 16px;text-align:center;color:var(--mute)}
+.note{font-size:.8rem;color:var(--mute);margin-top:24px}
+dialog{border:0;border-radius:20px 20px 0 0;padding:0;width:100%;max-width:640px;margin:auto auto 0;max-height:92vh;overflow:auto;background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(20,37,43,.55)}
+.sheet{padding:20px 16px 28px}
+.sheet h2{margin-bottom:4px}
+.sheet>p{margin:0 0 14px;color:var(--mute);font-size:.9rem}
+label{display:block;font-weight:600;font-size:.9rem;margin:12px 0 4px}
+input[type=text],input[type=number],select{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-btn);font:inherit;background:#fff;color:inherit}
+.radios{display:flex;flex-wrap:wrap;gap:8px}
+.radios label{margin:0;font-weight:600}
+.radios input{position:absolute;opacity:0;pointer-events:none}
+.radios span{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:8px 16px;cursor:pointer}
+.radios input:checked+span{background:var(--ink);color:#fff;border-color:var(--ink)}
+.radios input:focus-visible+span,.chk input:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.chk{display:flex;gap:10px;align-items:flex-start;margin:0;padding:11px 0;border-bottom:1px solid var(--line);font-weight:400;font-size:.95rem}
+.chk input{width:20px;height:20px;margin:2px 0 0;flex:none;accent-color:var(--ink)}
+.btn{display:block;width:100%;margin-top:18px;border:0;border-radius:var(--r-btn);padding:14px;font:800 1rem Archivo,sans-serif;background:var(--bad);color:#fff;cursor:pointer}
+.btn.alt{background:#fff;color:var(--ink);border:1px solid var(--line);margin-top:10px}
+.light{display:flex;gap:14px;align-items:center;margin-top:16px;padding:14px;border-radius:var(--r-card);background:var(--ink);color:#fff}
+.dots{display:flex;flex-direction:column;gap:6px}
+.dots i{width:18px;height:18px;border-radius:50%;background:#34454c}
+.light[data-l="0"] .dots i:nth-child(3){background:#3ddc84}
+.light[data-l="1"] .dots i:nth-child(2){background:var(--amber)}
+.light[data-l="2"] .dots i:nth-child(1){background:#ff5b4f}
+.light b{display:block;font:800 1.3rem Archivo,sans-serif}
+.light span{font-size:.9rem;opacity:.9}
+.hit{margin-top:10px;font-size:.88rem;background:#fde8e5;border-radius:10px;padding:8px 12px}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;font-size:.9rem;z-index:99;max-width:90%;text-align:center}
+#toast[hidden]{display:none}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){.rep{transition:border-color .15s}.rep:hover{border-color:var(--ink)}}
+</style>
+</head>
+<body>
+<div class="stripe"></div>
+<main>
+<h1>Radar Order Fiktif Malang Raya</h1>
+<p class="sub">Cek dulu sebelum jalan, hemat bensin.</p>
+<p id="stat"></p>
+<p class="demo" id="demo" hidden>Mode demo: laporan hanya tersimpan di HP ini. Sambungkan Supabase supaya semua driver bisa melihat laporan yang sama.</p>
+
+<input class="search" id="q" type="search" placeholder="Cari jalan, gang, kecamatan, modus" aria-label="Cari laporan">
+
+<div class="actions">
+  <button class="act a1" id="openCek"><b>Cek risiko order</b><span>Nilai orderan yang baru masuk</span></button>
+  <button class="act a2" id="openLapor"><b>Lapor order fiktif</b><span>Biar driver lain tidak zonk</span></button>
+</div>
+
+<div class="chips" id="chips" role="group" aria-label="Filter platform"></div>
+
+<div class="head"><h2>Laporan terbaru</h2><span id="count"></span></div>
+<div id="list"></div>
+<p class="note">Laporan berasal dari pengguna, bukan data resmi platform. Jangan menulis nama atau nomor HP pelanggan. Cukup alamat dan modusnya.</p>
+</main>
+
+<dialog id="dCek"><div class="sheet">
+  <h2>Cek risiko order</h2>
+  <p>Centang ciri yang kamu lihat di orderan ini.</p>
+  <label for="cAlamat">Alamat tujuan (opsional, untuk dicocokkan dengan laporan)</label>
+  <input type="text" id="cAlamat" placeholder="Contoh: Jl. Raya Tlogomas, Lowokwaru" autocomplete="off">
+  <div id="chks" style="margin-top:8px"></div>
+  <div class="light" id="light" data-l="0"><div class="dots"><i></i><i></i><i></i></div><div><b id="lv">Rendah</b><span id="lt"></span></div></div>
+  <div class="hit" id="hit" hidden></div>
+  <button class="btn alt" data-close>Tutup</button>
+</div></dialog>
+
+<dialog id="dLapor"><form class="sheet" id="fLapor">
+  <h2>Lapor order fiktif</h2>
+  <p>Satu laporan per kejadian. Batas 3 laporan per hari.</p>
+  <label>Platform</label>
+  <div class="radios" id="rPlat"></div>
+  <label for="fKec">Kecamatan</label>
+  <input type="text" id="fKec" name="kecamatan" list="kecs" required placeholder="Contoh: Lowokwaru" autocomplete="off">
+  <datalist id="kecs"></datalist>
+  <label for="fAlamat">Alamat atau patokan</label>
+  <input type="text" id="fAlamat" name="alamat" required maxlength="160" placeholder="Contoh: Jl. Raya Tlogomas, depan ruko kosong">
+  <label for="fModus">Modus</label>
+  <select id="fModus" name="modus" required></select>
+  <label for="fNominal">Nominal order (Rp, opsional)</label>
+  <input type="number" id="fNominal" name="nominal" min="0" max="100000000" inputmode="numeric" placeholder="150000">
+  <button class="btn" type="submit">Kirim laporan</button>
+  <button class="btn alt" type="button" data-close>Batal</button>
+</form></dialog>
+
+<div id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+/* ===== SETUP SUPABASE (opsional, supaya laporan dibagi ke semua driver) =====
+Jalankan SQL ini di Supabase > SQL Editor, lalu isi CFG di bawah dengan Project URL dan anon key.
+
+create table laporan(
+ id uuid primary key default gen_random_uuid(),
+ created_at timestamptz default now(),
+ platform text not null,
+ kecamatan text not null check (char_length(kecamatan)<=40),
+ alamat text not null check (char_length(alamat)<=160),
+ modus text not null,
+ nominal int default 0 check (nominal between 0 and 100000000),
+ korban int not null default 1,
+ status text not null default 'aktif');
+alter table laporan enable row level security;
+create policy baca on laporan for select using (status='aktif');
+create policy lapor on laporan for insert with check (korban=1 and status='aktif');
+create function konfirmasi(rid uuid) returns void language sql security definer as $$ update laporan set korban=korban+1 where id=rid $$;
+grant execute on function konfirmasi(uuid) to anon;
+
+Moderasi: ubah kolom status menjadi 'hidden' lewat dashboard untuk menyembunyikan laporan palsu.
+=========================================================================== */
+const CFG={URL:'',KEY:''};
+const DEMO=!CFG.URL;
+const PLATS=['Shopee','Gojek','Grab','Maxim'];
+const MODUS=['Alamat palsu / tanah kosong','Minta talangan pulsa / transfer','Nomor tidak aktif','COD ditolak saat sampai','Lainnya'];
+const KECS=['Blimbing','Kedungkandang','Klojen','Lowokwaru','Sukun','Batu','Bumiaji','Junrejo','Ampelgading','Bantur','Bululawang','Dampit','Dau','Donomulyo','Gedangan','Gondanglegi','Jabung','Kalipare','Karangploso','Kasembon','Kepanjen','Kromengan','Lawang','Ngajum','Ngantang','Pagak','Pagelaran','Pakis','Pakisaji','Poncokusumo','Pujon','Singosari','Sumbermanjing Wetan','Sumberpucung','Tajinan','Tirtoyudo','Tumpang','Turen','Wagir','Wajak','Wonosari'];
+const CHK=[['Akun pelanggan baru atau belum punya ulasan',1],['Alamat tanpa patokan jelas atau di lokasi sepi',2],['Minta talangan pulsa, transfer, atau beli barang dulu',3],['Minta pindah chat ke luar aplikasi',2],['Nomor pelanggan tidak bisa dihubungi',2],['Nominal besar tapi menolak bayar lewat aplikasi',2]];
+const LS='rofm_laporan',LSV='rofm_vote',LSR='rofm_kirim';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let data=[],plat='Semua',q='';
+
+function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,3200)}
+const jkt=d=>d.toLocaleDateString('en-CA',{timeZone:'Asia/Jakarta'});
+function when(iso){
+  const d=new Date(iso),n=new Date();
+  const t=d.toLocaleTimeString('id-ID',{timeZone:'Asia/Jakarta',hour:'2-digit',minute:'2-digit',hour12:false}).replace('.',':');
+  const diff=Math.round((new Date(jkt(n))-new Date(jkt(d)))/864e5);
+  const day=diff<1?'Hari ini':diff<2?'Kemarin':d.toLocaleDateString('id-ID',{timeZone:'Asia/Jakarta',day:'numeric',month:'short'});
+  return day+', '+t+' WIB';
+}
+const rp=n=>n?'Rp '+Number(n).toLocaleString('id-ID'):'';
+
+async function api(path,opt={}){
+  const r=await fetch(CFG.URL+'/rest/v1/'+path,{...opt,headers:{apikey:CFG.KEY,Authorization:'Bearer '+CFG.KEY,'Content-Type':'application/json',...(opt.headers||{})}});
+  if(!r.ok)throw new Error(r.status);
+  return r.status===204?null:r.json();
+}
+async function load(){
+  try{data=DEMO?store.get(LS,[]):await api('laporan?select=*&status=eq.aktif&order=created_at.desc&limit=300')}
+  catch(e){data=[];toast('Gagal memuat laporan. Coba muat ulang halaman.')}
+  render();
+}
+async function save(rep){
+  if(DEMO){
+    const id=(crypto.randomUUID?crypto.randomUUID():String(Date.now()));
+    data.unshift({id,created_at:new Date().toISOString(),korban:1,...rep});
+    store.set(LS,data);
+  }else await api('laporan',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(rep)});
+}
+async function confirmVictim(id){
+  if(DEMO){const r=data.find(x=>x.id===id);if(r){r.korban++;store.set(LS,data)}}
+  else await api('rpc/konfirmasi',{method:'POST',body:JSON.stringify({rid:id})});
+}
+
+function render(){
+  const total=data.reduce((a,r)=>a+r.korban,0);
+  const by={};data.forEach(r=>by[r.kecamatan]=(by[r.kecamatan]||0)+r.korban);
+  const top=Object.entries(by).sort((a,b)=>b[1]-a[1])[0];
+  $('#stat').innerHTML=data.length?`<b>${data.length}</b> titik dilaporkan, <b>${total}</b> korban. Paling rawan di <b>${esc(top[0])}</b>.`:'Belum ada laporan. Jadi yang pertama melapor.';
+  const ql=q.trim().toLowerCase();
+  const list=data.filter(r=>(plat==='Semua'||r.platform===plat)&&(!ql||[r.alamat,r.kecamatan,r.modus].join(' ').toLowerCase().includes(ql)));
+  $('#count').textContent=list.length+' laporan';
+  const voted=store.get(LSV,[]);
+  $('#list').innerHTML=list.length?list.map(r=>`
+  <article class="rep">
+    <div class="side"><span class="pl p-${esc(r.platform)}">${esc(r.platform)}</span><span class="vic">${r.korban} korban</span></div>
+    <div class="body">
+      <h3>${esc(r.alamat)}</h3>
+      <p>${esc(r.kecamatan)}, ${esc(r.modus)}</p>
+      <div class="meta"><span>${when(r.created_at)}</span><strong>${rp(r.nominal)}</strong></div>
+      <div class="foot"><span class="st ${r.korban>1?'ok':''}">${r.korban>1?'Terkonfirmasi':'Belum dikonfirmasi'}</span>
+      <button class="vote" data-v="${esc(r.id)}" ${voted.includes(r.id)?'disabled':''}>${voted.includes(r.id)?'Sudah dikonfirmasi':'Saya juga korban'}</button></div>
+    </div>
+  </article>`).join(''):`<div class="empty">${data.length?'Tidak ada laporan yang cocok. Coba kata kunci atau platform lain.':'Belum ada laporan di sini. Pernah kena order fiktif? Laporkan supaya driver lain tidak zonk.'}</div>`;
+}
+
+/* chips */
+$('#chips').innerHTML=['Semua',...PLATS].map(p=>`<button class="chip" data-p="${p}" aria-pressed="${p==='Semua'}">${p}</button>`).join('');
+$('#chips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;plat=b.dataset.p;document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b));render()};
+$('#q').oninput=e=>{q=e.target.value;render()};
+$('#list').onclick=async e=>{
+  const b=e.target.closest('.vote');if(!b||b.disabled)return;
+  try{await confirmVictim(b.dataset.v);store.set(LSV,[...store.get(LSV,[]),b.dataset.v]);toast('Terima kasih, konfirmasi tercatat.');await load()}
+  catch(err){toast('Gagal mengirim konfirmasi. Coba lagi.')}
+};
+
+/* cek risiko */
+$('#chks').innerHTML=CHK.map((c,i)=>`<label class="chk"><input type="checkbox" data-w="${c[1]}"><span>${c[0]}</span></label>`).join('');
+const STOP=['jalan','jln','gang','gg','dekat','depan','belakang','nomor','kota','rumah','raya'];
+const toks=s=>s.toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(w=>w.length>2&&!STOP.includes(w));
+function matchAddr(a){
+  const t=toks(a);if(t.length<2)return null;
+  return data.find(r=>{const s=toks(r.alamat+' '+r.kecamatan);return t.filter(w=>s.includes(w)).length>=2});
+}
+function cek(){
+  let s=0;document.querySelectorAll('#chks input:checked').forEach(i=>s+=+i.dataset.w);
+  const m=matchAddr($('#cAlamat').value);
+  if(m)s+=3;
+  const L=s>=5?[2,'Bahaya','Banyak tanda order fiktif. Pertimbangkan tidak mengambil, atau minta pelanggan bayar dulu lewat aplikasi.']:s>=3?[1,'Waspada','Hubungi pelanggan dan minta konfirmasi lewat aplikasi sebelum jalan.']:[0,'Rendah','Belum ada tanda kuat. Ini panduan, bukan jaminan.'];
+  $('#light').dataset.l=L[0];$('#lv').textContent=L[1];$('#lt').textContent=L[2];
+  const h=$('#hit');
+  if(m){h.hidden=false;h.textContent=`Alamat mirip laporan: ${m.alamat}, ${m.kecamatan} (${m.korban} korban, ${m.platform}).`}else h.hidden=true;
+}
+$('#dCek').addEventListener('input',cek);
+$('#openCek').onclick=()=>{$('#dCek').showModal();cek()};
+
+/* lapor */
+$('#rPlat').innerHTML=PLATS.map((p,i)=>`<label><input type="radio" name="platform" value="${p}" ${i?'':'required'}><span>${p}</span></label>`).join('');
+$('#fModus').innerHTML=MODUS.map(m=>`<option>${m}</option>`).join('');
+$('#kecs').innerHTML=KECS.map(k=>`<option value="${k}">`).join('');
+$('#openLapor').onclick=()=>$('#dLapor').showModal();
+$('#fLapor').onsubmit=async e=>{
+  e.preventDefault();
+  const sent=store.get(LSR,[]).filter(t=>Date.now()-t<864e5);
+  if(sent.length>=3)return toast('Batas 3 laporan per hari dari perangkat ini.');
+  const f=new FormData(e.target);
+  const rep={platform:f.get('platform'),kecamatan:f.get('kecamatan').trim(),alamat:f.get('alamat').trim(),modus:f.get('modus'),nominal:Math.max(0,parseInt(f.get('nominal'))||0)};
+  try{
+    await save(rep);
+    store.set(LSR,[...sent,Date.now()]);
+    e.target.reset();$('#dLapor').close();toast('Laporan terkirim. Terima kasih sudah melindungi driver lain.');await load();
+  }catch(err){toast('Gagal mengirim laporan. Coba lagi.')}
+};
+
+/* dialog */
+document.querySelectorAll('dialog').forEach(d=>{
+  d.addEventListener('click',e=>{if(e.target===d||e.target.closest('[data-close]'))d.close()});
+});
+$('#demo').hidden=!DEMO;
+load();
+</script>
+</body>
+</html>
