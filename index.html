@@ -121,11 +121,32 @@ input[type=text],input[type=number],select{width:100%;padding:12px 14px;border:1
 
 <dialog id="dCek"><div class="sheet">
   <h2>Cek risiko order</h2>
-  <p>Centang ciri yang kamu lihat di orderan ini.</p>
-  <label for="cAlamat">Alamat tujuan (opsional, untuk dicocokkan dengan laporan)</label>
-  <input type="text" id="cAlamat" placeholder="Contoh: Jl. Raya Tlogomas, Lowokwaru" autocomplete="off">
-  <div id="chks" style="margin-top:8px"></div>
-  <div class="light" id="light" data-l="0"><div class="dots"><i></i><i></i><i></i></div><div><b id="lv">Rendah</b><span id="lt"></span></div></div>
+  <p class="cek-sub">Pilih aplikasi dan ciri-ciri orderan yang baru masuk di HP kamu.</p>
+
+  <div class="cek-sec">
+    <span class="cek-sec-title">Aplikasi ojol</span>
+    <div class="app-pills" id="cekApps"></div>
+  </div>
+
+  <div class="cek-sec">
+    <span class="cek-sec-title">Nominal order dan talangan</span>
+    <div class="opt-cards" id="cekNominal"></div>
+  </div>
+
+  <div class="cek-sec">
+    <span class="cek-sec-title">Titik antar</span>
+    <div class="opt-cards" id="cekTitik"></div>
+  </div>
+
+  <div class="cek-sec">
+    <label for="cAlamat" class="cek-sec-title">Alamat tujuan (opsional, dicocokkan dengan laporan)</label>
+    <input type="text" id="cAlamat" placeholder="Contoh: Jl. Raya Tlogomas, Lowokwaru" autocomplete="off">
+  </div>
+
+  <div class="light" id="light" data-l="0">
+    <div class="dots"><i></i><i></i><i></i></div>
+    <div><b id="lv">Rendah</b><span id="lt"></span></div>
+  </div>
   <div class="hit" id="hit" hidden></div>
   <button class="btn alt" data-close>Tutup</button>
 </div></dialog>
