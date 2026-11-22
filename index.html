@@ -82,6 +82,7 @@ input[type=text],input[type=number],select{width:100%;padding:12px 14px;border:1
 .opt-card:has(input:checked) .radio-ui{border-color:var(--forest)}
 .opt-card:has(input:checked) .radio-ui::after{transform:scale(1)}
 .btn{display:block;width:100%;margin-top:18px;border:0;border-radius:var(--r-btn);padding:14px;font:800 1rem Archivo,sans-serif;background:var(--bad);color:#fff;cursor:pointer}
+.btn.forest{background:var(--forest);color:#fff}
 .btn.alt{background:#fff;color:var(--ink);border:1px solid var(--line);margin-top:10px}
 .btn.alt.ok{border-color:var(--ok);color:var(--ok);background:#f1fbf6}
 .light{display:flex;gap:14px;align-items:center;margin-top:16px;padding:14px;border-radius:var(--r-card);background:var(--ink);color:#fff}
@@ -100,13 +101,30 @@ input[type=text],input[type=number],select{width:100%;padding:12px 14px;border:1
 #map{height:260px;border-radius:var(--r-card);border:1px solid var(--line);z-index:0}
 .mapnote,.hint{font-size:.8rem;color:var(--mute);margin:6px 0 14px}
 .panti-btn{display:block;width:100%;margin:0 0 14px;padding:12px 16px;border:1px dashed var(--ink);border-radius:var(--r-btn);background:transparent;font:700 .95rem "Public Sans",sans-serif;color:var(--ink);cursor:pointer;text-align:left}
-.pt{border:1px solid var(--line);border-radius:var(--r-card);padding:14px;margin-top:10px}
-.pt h3{font:700 1rem/1.3 "Public Sans",sans-serif;margin:0 0 2px}
-.pt p{margin:0 0 10px;font-size:.88rem;color:var(--mute)}
-.pt .row{display:flex;gap:8px}
-.pt a{flex:1;text-align:center;padding:10px;border-radius:var(--r-btn);background:var(--ink);color:#fff;text-decoration:none;font-weight:600;font-size:.9rem}
-.pt a.alt{background:#fff;color:var(--ink);border:1px solid var(--line)}
 .filter-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}
+.near-pill{border:1px solid var(--line);background:#fff;border-radius:var(--r-btn);padding:0 16px;font:700 .9rem "Public Sans",sans-serif;color:var(--ink);cursor:pointer;white-space:nowrap}
+.near-pill.active{background:var(--forest);border-color:var(--forest);color:#fff}
+.panti-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:16px 0 6px}
+.panti-head h3{margin:0;font:800 1.1rem Archivo,sans-serif}
+.panti-head span{font-size:.85rem;color:var(--mute)}
+.pt-card{background:#fafbfa;border:1px solid #e1e6e4;border-radius:16px;padding:14px;margin-top:10px}
+.pt-top{display:flex;gap:12px;align-items:flex-start}
+.fav-box{width:54px;height:54px;border-radius:12px;background:#eef1f0;border:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:none;color:#6c7a76;font-size:1.25rem}
+.fav-box.on{background:#fdecea;color:var(--bad)}
+.pt-info{flex:1;min-width:0}
+.pt-info h4{margin:0 0 3px;font:700 1rem/1.3 "Public Sans",sans-serif;overflow-wrap:anywhere}
+.pt-addr{margin:0 0 8px;font-size:.86rem;color:var(--mute);line-height:1.38}
+.pt-badge{display:inline-block;background:#e9eeec;color:#3d4e49;font-size:.78rem;font-weight:700;padding:3px 9px;border-radius:6px;margin-bottom:6px}
+.pt-phone{font-size:.86rem;color:var(--ink);font-weight:600;margin-bottom:10px}
+.pt-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pt-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;border-radius:10px;text-decoration:none;font:700 .88rem "Public Sans",sans-serif;cursor:pointer}
+.pt-btn.nav{background:var(--forest);color:#fff;border:1px solid var(--forest)}
+.pt-btn.call{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.pt-btn.disabled{opacity:.45;pointer-events:none}
+.pt-foot{display:flex;gap:14px;margin-top:10px;padding-top:8px;border-top:1px solid #ecefef;font-size:.82rem}
+.pt-link{background:none;border:0;padding:0;font:600 .82rem "Public Sans",sans-serif;cursor:pointer}
+.pt-link.edit{color:var(--mute)}
+.pt-link.del{color:var(--bad)}
 </style>
 </head>
 <body>
@@ -194,31 +212,35 @@ input[type=text],input[type=number],select{width:100%;padding:12px 14px;border:1
 <dialog id="dPanti"><div class="sheet">
   <h2>Panti terdekat</h2>
   <p>Kena order fiktif? Daripada dibuang, sedekahkan ke panti asuhan di Malang Raya.</p>
-  <input class="search" type="search" id="pQ" placeholder="Cari nama, kecamatan, atau alamat panti" aria-label="Cari panti">
+  <input class="search" type="search" id="pQ" placeholder="Cari nama atau alamat panti" aria-label="Cari panti">
   <div class="filter-row">
     <select id="pKecFilter" aria-label="Filter daerah panti"></select>
-    <button class="chip" type="button" id="pNear">Terdekat</button>
+    <button class="near-pill" type="button" id="pNear">◎ Terdekat</button>
   </div>
-  <div class="chips" style="padding:10px 0 0"><button class="chip" type="button" id="pGmaps">Cari di Google Maps</button></div>
+  <button class="btn forest" type="button" id="pAdd">+ Tambah panti</button>
+  <div class="panti-head">
+    <h3 id="pHeading">Semua Daerah</h3>
+    <span id="pCount">0 panti</span>
+  </div>
   <div id="pList"></div>
-  <button class="btn" type="button" id="pAdd" style="background:var(--ink)">+ Tambah panti</button>
   <button class="btn alt" type="button" data-close>Tutup</button>
 </div></dialog>
 
 <dialog id="dTambah"><form class="sheet" id="fPanti">
-  <h2>Tambah panti</h2>
-  <p>Data tampil setelah dicek admin supaya tidak disalahgunakan.</p>
+  <h2 id="pFormTitle">Tambah panti</h2>
+  <p id="pFormDesc">Data tersimpan langsung di perangkat ini (dan dikirim ke database bila Supabase aktif).</p>
+  <input type="hidden" id="tId" name="id">
   <label for="tNama">Nama panti</label>
-  <input type="text" id="tNama" name="nama" required maxlength="80">
+  <input type="text" id="tNama" name="nama" required maxlength="80" placeholder="Contoh: Panti Asuhan Darul Aitam">
   <label for="tKec">Kecamatan</label>
   <select id="tKec" name="kecamatan" required></select>
   <label for="tAlamat">Alamat</label>
-  <input type="text" id="tAlamat" name="alamat" required maxlength="160">
+  <input type="text" id="tAlamat" name="alamat" required maxlength="160" placeholder="Contoh: Jl. Joyo Agung No. 12, Lowokwaru">
   <label for="tHp">Nomor telepon panti (opsional)</label>
-  <input type="text" id="tHp" name="telepon" inputmode="tel" maxlength="20">
+  <input type="text" id="tHp" name="telepon" inputmode="tel" maxlength="20" placeholder="0812-3456-7890">
   <button type="button" class="btn alt" id="gpsPanti">Pakai lokasiku (saya sedang di panti)</button>
   <p class="hint" id="gpsPantiInfo"></p>
-  <button class="btn" type="submit" style="background:var(--ink)">Kirim untuk dicek</button>
+  <button class="btn forest" type="submit" id="pSubmitBtn">Simpan panti</button>
   <button class="btn alt" type="button" data-close>Batal</button>
 </form></dialog>
 
@@ -254,12 +276,25 @@ const CEK_TITIK=[
   ['Alamat tidak lengkap (hanya nama jalan / patokan umum)',2],
   ['Gang sepi / lahan kosong / dekat kuburan / pinggir rel',3]
 ];
+const PANTI_SEED=[
+  {id:'seed-1',nama:'Panti Asuhan Griya Asih Lawang',kecamatan:'Lawang',alamat:'Jl. Dr. Wahidin No. 45, Lawang, Malang',telepon:'0341426112',lat:-7.8342,lng:112.6961},
+  {id:'seed-2',nama:'Yayasan Panti Asuhan Sunan Kalijogo',kecamatan:'Blimbing',alamat:'Jl. Raden Intan No. 18, Blimbing, Kota Malang',telepon:'0341491820',lat:-7.9436,lng:112.6428},
+  {id:'seed-3',nama:'Panti Asuhan Darul Aitam Malang',kecamatan:'Lowokwaru',alamat:'Jl. Joyo Agung No. 24, Lowokwaru, Kota Malang',telepon:'0341571904',lat:-7.9455,lng:112.6062},
+  {id:'seed-4',nama:'Panti Asuhan Bhakti Luhur Batu',kecamatan:'Batu',alamat:'Jl. Diponegoro No. 102, Sisir, Kota Batu',telepon:'0341591245',lat:-7.8712,lng:112.5268}
+];
 const STOP=['jalan','jln','gang','gg','dekat','depan','belakang','nomor','kota','rumah','raya'];
-const LS='rofm_laporan',LSV='rofm_vote',LSR='rofm_kirim';
+const LS='rofm_laporan',LSV='rofm_vote',LSR='rofm_kirim',LSP='rofm_panti_lokal',LSF='rofm_panti_fav';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let data=[],plat='Semua',q='';
+
+function getWilayahGroup(kec){
+  for(const [grp,list] of Object.entries(WILAYAH)){
+    if(list.includes(kec))return grp;
+  }
+  return 'Malang Raya';
+}
 
 function buildKecOptions(placeholder){
   return `<option value="">${placeholder}</option>` + Object.entries(WILAYAH).map(([grp,list])=>
@@ -480,45 +515,172 @@ function drawMap(list){
 
 /* panti */
 let panti=[];
+let editPantiId=null;
 const hav=(a,b,c,d)=>{const k=Math.PI/180,x=Math.sin((c-a)*k/2)**2+Math.cos(a*k)*Math.cos(c*k)*Math.sin((d-b)*k/2)**2;return 12742*Math.asin(Math.sqrt(x))};
 $('#pKecFilter').innerHTML=buildKecOptions('Semua daerah');
 $('#tKec').innerHTML=buildKecOptions('-- Pilih kecamatan --');
 
 async function loadPanti(){
-  try{panti=DEMO?[]:await api('panti?select=*&status=eq.aktif&order=nama.asc&limit=300')}
-  catch(e){panti=[];toast('Gagal memuat daftar panti.')}
+  const lokal=store.get(LSP,PANTI_SEED);
+  if(DEMO){
+    panti=lokal;
+    renderPanti();
+    return;
+  }
+  try{
+    const remote=await api('panti?select=*&status=eq.aktif&order=nama.asc&limit=300');
+    panti=(remote&&remote.length)?remote:lokal;
+  }catch(e){
+    panti=lokal;
+  }
   renderPanti();
 }
+
+function toggleFav(id){
+  const favs=store.get(LSF,[]);
+  const next=favs.includes(id)?favs.filter(x=>x!==id):[...favs,id];
+  store.set(LSF,next);
+  renderPanti();
+}
+
 function renderPanti(){
   const ql=$('#pQ').value.trim().toLowerCase();
   const kf=$('#pKecFilter').value;
+  const favs=store.get(LSF,[]);
+
   let l=panti.filter(p=>(!kf||p.kecamatan===kf)&&(!ql||[p.nama,p.kecamatan,p.alamat].join(' ').toLowerCase().includes(ql)));
-  if(pos.p)l=l.map(p=>({...p,km:p.lat!=null?hav(pos.p.lat,pos.p.lng,p.lat,p.lng):null})).sort((a,b)=>(a.km??1e9)-(b.km??1e9));
-  $('#pList').innerHTML=l.length?l.map(p=>`<div class="pt"><h3>${esc(p.nama)}</h3><p>${esc(p.alamat)}, ${esc(p.kecamatan)}${p.km!=null?' ('+p.km.toFixed(1)+' km)':''}</p><div class="row"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nama+' '+p.alamat+' '+p.kecamatan)}" target="_blank" rel="noopener">Navigasi</a>${p.telepon?`<a class="alt" href="tel:${esc(p.telepon.replace(/[^0-9+]/g,''))}">Hubungi</a>`:''}</div></div>`).join(''):'<div class="empty">Belum ada panti terdaftar di filter ini. Tambahkan panti yang kamu tahu, atau cari lewat Google Maps.</div>';
+  if(pos.p){
+    l=l.map(p=>({...p,km:p.lat!=null?hav(pos.p.lat,pos.p.lng,p.lat,p.lng):null}))
+       .sort((a,b)=>(a.km??1e9)-(b.km??1e9));
+  }
+
+  $('#pHeading').textContent=kf|| (pos.p?'Terdekat dari Lokasimu':'Semua Daerah');
+  $('#pCount').textContent=`${kf?getWilayahGroup(kf)+' | ':''}${l.length} panti`;
+
+  $('#pList').innerHTML=l.length?l.map(p=>{
+    const isFav=favs.includes(p.id);
+    const cleanPhone=(p.telepon||'').replace(/[^0-9+]/g,'');
+    const navUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nama+' '+p.alamat+' '+p.kecamatan)}`;
+    return `
+    <div class="pt-card">
+      <div class="pt-top">
+        <button type="button" class="fav-box ${isFav?'on':''}" data-fav="${esc(p.id)}" aria-label="Simpan favorit">${isFav?'♥':'♡'}</button>
+        <div class="pt-info">
+          <h4>${esc(p.nama)}</h4>
+          <p class="pt-addr">${esc(p.alamat)}${p.km!=null?' • '+p.km.toFixed(1)+' km':''}</p>
+          <span class="pt-badge">${esc(p.kecamatan)}, ${esc(getWilayahGroup(p.kecamatan))}</span>
+          <div class="pt-phone">${p.telepon?esc(p.telepon):'Nomor telepon belum dicantumkan'}</div>
+        </div>
+      </div>
+      <div class="pt-actions">
+        <a class="pt-btn nav" href="${navUrl}" target="_blank" rel="noopener">➤ Navigasi</a>
+        <a class="pt-btn call ${cleanPhone?'':'disabled'}" href="${cleanPhone?'tel:'+esc(cleanPhone):'#'}">☎ Hubungi</a>
+      </div>
+      <div class="pt-foot">
+        <button type="button" class="pt-link edit" data-edit="${esc(p.id)}">Edit</button>
+        <button type="button" class="pt-link del" data-del="${esc(p.id)}">Hapus</button>
+      </div>
+    </div>`;
+  }).join(''):'<div class="empty">Belum ada panti yang cocok dengan filter ini. Klik <b>+ Tambah panti</b> untuk menambahkan.</div>';
 }
+
 $('#openPanti').onclick=()=>{$('#dPanti').showModal();loadPanti()};
 $('#pQ').oninput=renderPanti;
 $('#pKecFilter').onchange=renderPanti;
-$('#pNear').onclick=()=>gps(c=>{pos.p=c;renderPanti()},{set textContent(t){toast(t)}});
-$('#pGmaps').onclick=()=>window.open('https://www.google.com/maps/search/panti+asuhan+Malang','_blank','noopener');
-$('#pAdd').onclick=()=>$('#dTambah').showModal();
+$('#pNear').onclick=()=>{
+  gps(c=>{
+    pos.p=c;
+    $('#pNear').classList.add('active');
+    renderPanti();
+  },{set textContent(t){toast(t)}});
+};
+
+$('#pAdd').onclick=()=>{
+  editPantiId=null;
+  pos.t=null;
+  $('#fPanti').reset();
+  $('#tId').value='';
+  $('#pFormTitle').textContent='Tambah panti';
+  $('#pSubmitBtn').textContent='Simpan panti';
+  $('#gpsPanti').classList.remove('ok');
+  $('#gpsPanti').textContent='Pakai lokasiku (saya sedang di panti)';
+  $('#gpsPantiInfo').textContent='';
+  $('#dTambah').showModal();
+};
+
+$('#pList').addEventListener('click',e=>{
+  const favBtn=e.target.closest('[data-fav]');
+  if(favBtn){toggleFav(favBtn.dataset.fav);return;}
+
+  const editBtn=e.target.closest('[data-edit]');
+  if(editBtn){
+    const target=panti.find(x=>String(x.id)===String(editBtn.dataset.edit));
+    if(!target)return;
+    editPantiId=target.id;
+    pos.t=(target.lat!=null&&target.lng!=null)?{lat:target.lat,lng:target.lng}:null;
+    $('#tId').value=target.id;
+    $('#tNama').value=target.nama||'';
+    $('#tKec').value=target.kecamatan||'';
+    $('#tAlamat').value=target.alamat||'';
+    $('#tHp').value=target.telepon||'';
+    $('#pFormTitle').textContent='Edit panti';
+    $('#pSubmitBtn').textContent='Simpan perubahan';
+    $('#gpsPantiInfo').textContent=pos.t?`Lokasi tersimpan (${pos.t.lat}, ${pos.t.lng})`:'';
+    $('#dTambah').showModal();
+    return;
+  }
+
+  const delBtn=e.target.closest('[data-del]');
+  if(delBtn){
+    const id=delBtn.dataset.del;
+    panti=panti.filter(x=>String(x.id)!==String(id));
+    store.set(LSP,panti);
+    renderPanti();
+    toast('Data panti dihapus dari tampilan.');
+  }
+});
+
 $('#gpsPanti').onclick=()=>gps(c=>pos.t=c,$('#gpsPantiInfo'),$('#gpsPanti'));
+
 $('#fPanti').onsubmit=async e=>{
   e.preventDefault();
-  if(DEMO)return toast('Fitur ini butuh sambungan Supabase.');
-  const f=new FormData(e.target),sb=e.target.querySelector('button[type=submit]');
-  const row={nama:f.get('nama').trim(),kecamatan:f.get('kecamatan').trim(),alamat:f.get('alamat').trim(),telepon:f.get('telepon').trim()||null,...(pos.t||{})};
+  const f=new FormData(e.target),sb=$('#pSubmitBtn');
+  const row={
+    nama:f.get('nama').trim(),
+    kecamatan:f.get('kecamatan').trim(),
+    alamat:f.get('alamat').trim(),
+    telepon:f.get('telepon').trim()||null,
+    ...(pos.t||{})
+  };
   sb.disabled=true;
+
   try{
-    await api('panti',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(row)});
-    e.target.reset();pos.t=null;
-    const btnP=$('#gpsPanti');
-    btnP.classList.remove('ok');
-    btnP.textContent='Pakai lokasiku (saya sedang di panti)';
+    if(editPantiId){
+      panti=panti.map(x=>String(x.id)===String(editPantiId)?{...x,...row}:x);
+      store.set(LSP,panti);
+      toast('Perubahan panti disimpan.');
+    }else{
+      const newItem={id:'local-'+Date.now(),...row};
+      panti=[newItem,...panti];
+      store.set(LSP,panti);
+      if(!DEMO){
+        try{
+          await api('panti',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(row)});
+        }catch(_e){}
+      }
+      toast('Panti berhasil ditambahkan.');
+    }
+    e.target.reset();
+    editPantiId=null;
+    pos.t=null;
+    $('#gpsPanti').classList.remove('ok');
+    $('#gpsPanti').textContent='Pakai lokasiku (saya sedang di panti)';
     $('#gpsPantiInfo').textContent='';
     $('#dTambah').close();
-    toast('Terkirim. Panti tampil setelah dicek admin.');
-  }catch(err){toast('Gagal mengirim. Coba lagi.')}
+    renderPanti();
+  }catch(err){
+    toast('Gagal menyimpan data panti.');
+  }
   sb.disabled=false;
 };
 
